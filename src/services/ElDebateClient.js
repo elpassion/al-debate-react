@@ -27,7 +27,8 @@ export default class ElDebateClient {
         this.cache.set(key, authToken);
         return authToken;
       } catch(e) {
-        throw new Error(e.response.data.message);
+        const message = e.response.data.error || 'Something went wrong';
+        throw new Error(message);
       }
     }
   }

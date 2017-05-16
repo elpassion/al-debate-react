@@ -1,7 +1,11 @@
 import React             from 'react';
 import { shallow }       from 'enzyme';
 import DebatePIN         from './DebatePIN';
-import { Input, Button } from 'semantic-ui-react';
+import {
+  Input,
+  Button,
+  Message
+}                        from 'semantic-ui-react';
 
 describe('DebatePIN', () => {
   let debatePIN = null;
@@ -44,5 +48,17 @@ describe('DebatePIN', () => {
     debatePIN.find(Input).simulate('change', {target: {value: code}});
     debatePIN.find(Button).simulate('click');
     expect(handlerFn).toHaveBeenCalledWith(code);
+  });
+
+  it('shows error message when error passed', () => {
+    const errorMessage = 'error';
+    debatePIN = shallow(<DebatePIN errorMessage={errorMessage} />);
+    expect(debatePIN.containsMatchingElement(errorMessage)).toBe(true);
+  });
+
+  it('does not show error message', () => {
+    const errorMessage = 'error';
+    debatePIN = shallow(<DebatePIN />);
+    expect(debatePIN.containsMatchingElement(errorMessage)).toBe(false);
   });
 });

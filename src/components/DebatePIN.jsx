@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import {
   Grid,
   Input,
-  Button
+  Button,
+  Message
 }                         from 'semantic-ui-react';
 
 import './DebatePIN.css';
@@ -18,6 +19,7 @@ export default class DebatePIN extends Component {
     return (
       <Grid padded centered>
         <Grid.Column width={10}>
+          {this._renderErrorMessage()}
           <Input icon="lock"
                  iconPosition="left"
                  placeholder="PIN"
@@ -37,6 +39,17 @@ export default class DebatePIN extends Component {
         </Grid.Column>
       </Grid>
     );
+  }
+
+  _renderErrorMessage() {
+    const { errorMessage } = this.props;
+    if(errorMessage) {
+      return (
+        <Message negative>
+          <p>{errorMessage}</p>
+        </Message>
+      );
+    }
   }
 
   _handleButtonClick() {
