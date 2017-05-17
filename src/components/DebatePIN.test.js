@@ -1,10 +1,10 @@
 import React             from 'react';
 import { shallow }       from 'enzyme';
 import DebatePIN         from './DebatePIN';
+import ErrorMessage      from './ErrorMessage';
 import {
   Input,
-  Button,
-  Message
+  Button
 }                        from 'semantic-ui-react';
 
 describe('DebatePIN', () => {
@@ -50,15 +50,9 @@ describe('DebatePIN', () => {
     expect(handlerFn).toHaveBeenCalledWith(code);
   });
 
-  it('shows error message when error passed', () => {
+  it('renders error message', () => {
     const errorMessage = 'error';
     debatePIN = shallow(<DebatePIN errorMessage={errorMessage} />);
-    expect(debatePIN.containsMatchingElement(errorMessage)).toBe(true);
-  });
-
-  it('does not show error message', () => {
-    const errorMessage = 'error';
-    debatePIN = shallow(<DebatePIN />);
-    expect(debatePIN.containsMatchingElement(errorMessage)).toBe(false);
+    expect(debatePIN.containsMatchingElement(<ErrorMessage message={errorMessage} />)).toBe(true);
   });
 });
