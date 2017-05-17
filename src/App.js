@@ -31,6 +31,7 @@ export default class App extends Component {
       const {debate, selectedAnswerId} = this.state;
       return <Debate topic={debate.topic}
                      answers={debate.answers}
+                     errorMessage={this.state.lastError}
                      selectedAnswerId={selectedAnswerId}
                      onVoteSelected={this.handleVoteSelected.bind(this)} />;
     } else {
@@ -57,7 +58,12 @@ export default class App extends Component {
   }
 
   async handleVoteSelected(selectedId) {
-    await this.elDebateClient.vote(this.state.authToken, selectedId);
-    this.setState({ selectedAnswerId: selectedId });
+    this.setState({lastError: null});
+    try{
+      await this.elDebateClient.vote(this.state.authToken, selectedId);
+      this.setState({selectedAnswerId: selectedId});
+    } catch(e) {
+      this.setState({lastError: e.message});
+    }
   }
 }

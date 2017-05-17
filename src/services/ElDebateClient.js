@@ -27,8 +27,7 @@ export default class ElDebateClient {
         this.cache.set(key, authToken);
         return authToken;
       } catch(e) {
-        const message = e.response.data.error || 'Something went wrong';
-        throw new Error(message);
+        throw this._buildError(e);
       }
     }
   }
@@ -45,7 +44,7 @@ export default class ElDebateClient {
                                                   this._buildHeaders(accessToken));
       return response.data;
     } catch(e) {
-      throw new Error(e.response.data.message);
+      throw this._buildError(e);
     }
   }
 
@@ -57,7 +56,12 @@ export default class ElDebateClient {
     const urlParams = new URLSearchParams();
     Object.entries(params).forEach(([key, value]) => {
       urlParams.append(key, value);
-    })
+    });
     return urlParams;
+  }
+
+  _buildError(e) {
+    const message = e.response.data.error || 'Something went wrong';
+    return new Error(message);
   }
 }
