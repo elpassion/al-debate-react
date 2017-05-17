@@ -49,6 +49,12 @@ describe('ElDebateClient', () => {
     return urlParams;
   }
 
+  const error = (message) => {
+    const e = new Error(message);
+    e.response = { data: { error: message } };
+    return e;
+  }
+
   beforeEach(() => {
     cacheMock = new CacheMock();
   });
@@ -99,6 +105,69 @@ describe('ElDebateClient', () => {
 
       client.vote('token', 1);
       expect(post).toHaveBeenCalledWith('/vote', _buildParams({id: 1}), {headers: { 'Authorization': 'token' }});
+    });
+  });
+
+  describe('error handling', () => {
+    const errorMessage         = 'error message';
+    const genericMessage       = 'Something went wrong';
+    const postWithErrorMessage = () => { throw error(errorMessage) };
+    const postWithoutMessage   = () => { throw error(null) }
+
+    describe('getToken', () => {
+      it('throws Error with error response text if available', async () => {
+        const httpClientMock = new HttpClientMock(true);
+        httpClientMock.post  = postWithErrorMessage;
+        const client         = new ElDebateClient(httpClientMock, cacheMock);
+
+        expect.assertions(1)
+        try {
+          await client.getToken(1234)
+        } catch(e) {
+          expect(e.message).toBe(errorMessage);
+        }
+      });
+
+      it('throws error with generic message', async () => {
+        const httpClientMock = new HttpClientMock(true);
+        httpClientMock.post  = postWithoutMessage;
+        const client         = new ElDebateClient(httpClientMock, cacheMock);
+
+        expect.assertions(1)
+        try {
+          await client.getToken(1234)
+        } catch(e) {
+          expect(e.message).toBe(genericMessage);
+        }
+      });
+    });
+
+    describe('vote', () => {
+      it('throws error with error response text if available', async () => {
+        const httpClientMock = new HttpClientMock(true);
+        httpClientMock.post = postWithErrorMessage;
+        const client = new ElDebateClient(httpClientMock, cacheMock);
+
+        expect.assertions(1)
+        try {
+          await client.vote(1, 'token')
+        } catch(e) {
+          expect(e.message).toBe(errorMessage);
+        }
+      });
+
+      it('throws error with generic message', async () => {
+        const httpClientMock = new HttpClientMock(true);
+        httpClientMock.post  = postWithoutMessage;
+        const client         = new ElDebateClient(httpClientMock, cacheMock);
+
+        expect.assertions(1)
+        try {
+          await client.vote(1, 'token')
+        } catch(e) {
+          expect(e.message).toBe(genericMessage);
+        }
+      });
     });
   });
 });

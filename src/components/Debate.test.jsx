@@ -1,7 +1,8 @@
-import React       from 'react';
-import { shallow } from 'enzyme';
-import Debate      from './Debate';
-import Answer      from './Answer';
+import React        from 'react';
+import { shallow }  from 'enzyme';
+import Debate       from './Debate';
+import Answer       from './Answer';
+import ErrorMessage from './ErrorMessage';
 
 describe('Debate', () => {
   const answers = {
@@ -34,5 +35,12 @@ describe('Debate', () => {
     debate.find(Answer).at(1).shallow().simulate('click');
 
     expect(handler).toHaveBeenCalledWith(2);
+  });
+
+  it('renders error message', () => {
+    const error  = 'error message';
+    const debate = shallow(<Debate topic={topic} answers={answers} errorMessage={error} />);
+
+    expect(debate.containsMatchingElement(<ErrorMessage message={error} />)).toBe(true);
   });
 });

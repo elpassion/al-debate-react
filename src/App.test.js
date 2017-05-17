@@ -23,7 +23,7 @@ class ElDebateClientMock {
     if(this.code === code) {
       return this.token;
     } else {
-      return null;
+      throw new Error('error');
     }
   }
 
@@ -39,7 +39,7 @@ class ElDebateClientMock {
     if (this.token == token) {
       return true;
     } else {
-      return false;
+      throw new Error('error');
     }
   }
 
@@ -104,32 +104,62 @@ describe('App', () => {
       app.setState({ debateLoaded: true, debate: debate });
       expect(app.containsMatchingElement(<DebatePIN />)).toBe(false);
     });
+
+    it('renders debate pin with error', () => {
+      const error = 'error message';
+      const app   = shallow(<App />);
+      app.setState({ debateLoaded: false, lastError: error });
+      expect(app.containsMatchingElement(<DebatePIN errorMessage={error} />)).toBe(true);
+    });
+
+    it('renders debate with error message', () => {
+      const error = 'error message';
+      const app   = shallow(<App />);
+      app.setState({ debateLoaded: true, debate: debate, lastError: error });
+      expect(app.containsMatchingElement(<Debate errorMessage={error} />)).toBe(true);
+    });
   });
 
   describe('debate fetching', () => {
+    const code   = 1234;
+    const token  = 'accesstoken';
+    const debate = { topic: debateTopic, answers: debateAnswers };
+    const client = new ElDebateClientMock(debate, code, token);
+
     it('handles code submit and sets debate in state', async () => {
-      const code   = 1234;
-      const token  = 'accesstoken';
-      const debate = { topic: debateTopic, answers: debateAnswers };
-      const client = new ElDebateClientMock(debate, code, token);
       const app    = shallow(<App elDebateClient={client} />);
 
       await app.instance().handleCodeSubmit(code);
       expect(app.state('debate')).toBe(debate);
     });
+
+    it('handles error thrown', async () => {
+      const app    = shallow(<App elDebateClient={client} />);
+
+      await app.instance().handleCodeSubmit(code + 1);
+      expect(app.state('lastError')).not.toBe(null);
+    });
   });
 
   describe('debate voting', () => {
+    const code   = 1234;
+    const token  = 'accesstoken';
+    const debate = { topic: debateTopic, answers: debateAnswers };
+    const client = new ElDebateClientMock(debate, code, token);
+
     it('handles voting', async () => {
-      const code   = 1234;
-      const token  = 'accesstoken';
-      const debate = { topic: debateTopic, answers: debateAnswers };
-      const client = new ElDebateClientMock(debate, code, token);
       const app    = shallow(<App elDebateClient={client} />);
 
       app.setState({ debateLoaded: true, debate: debate, authToken: token });
       await app.instance().handleVoteSelected(debateAnswers.positive.id);
       expect(app.state('selectedAnswerId')).toBe(debateAnswers.positive.id);
+    });
+
+    it('handles error thrown', async () => {
+      const app    = shallow(<App elDebateClient={client} />);
+      app.setState({ debateLoaded: true, debate: debate, authToken: token + 'a' });
+      await app.instance().handleVoteSelected(debateAnswers.positive.id);
+      expect(app.state('lastError')).not.toBe(null);
     });
   })
 });

@@ -4,6 +4,7 @@ import {
   Input,
   Button
 }                         from 'semantic-ui-react';
+import ErrorMessage       from './ErrorMessage';
 
 import './DebatePIN.css';
 
@@ -13,11 +14,12 @@ export default class DebatePIN extends Component {
   }
 
   render() {
-    const {loading} = this.props;
+    const {loading, errorMessage} = this.props;
 
     return (
       <Grid padded centered>
         <Grid.Column width={10}>
+          <ErrorMessage message={errorMessage} />
           <Input icon="lock"
                  iconPosition="left"
                  placeholder="PIN"
